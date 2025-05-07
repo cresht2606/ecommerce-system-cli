@@ -1,6 +1,6 @@
-## Getting Started
+## Introduction
 
-Welcome to the VS Code Java world. Here is a guideline to help you get started to write Java code in Visual Studio Code.
+The side project, initially developed as OOP assignment, provides users with interactive interface despite glitchy appearance
 
 ## Folder Structure
 
@@ -9,10 +9,12 @@ The workspace contains two folders by default, where:
 - `src`: the folder to maintain sources
 - `lib`: the folder to maintain dependencies
 
-Meanwhile, the compiled output files will be generated in the `bin` folder by default.
+In the source file, there consists of three main models
 
-> If you want to customize the folder structure, open `.vscode/settings.json` and update the related settings there.
+- features: the implementation of e-commerece components
+- operation: respectively, each characters will have its distinctive functionality
+- io: the command-line interface of e-commerce system
 
-## Dependency Management
+## Remarks
 
-The `JAVA PROJECTS` view allows you to manage your dependencies. More details can be found [here](https://github.com/microsoft/vscode-java-dependency#manage-dependencies).
+- Feedback, comments and suggestions are welcomed.
