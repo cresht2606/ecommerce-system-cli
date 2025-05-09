@@ -1,12 +1,14 @@
 package features;
 
-//Generate random & unique User ID
-import java.util.UUID;
-
 //Default Time Format
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+
+//Temporary list for storing existed ID users
+import java.util.Set;
+import java.util.HashSet;
+
 
 /**
 * Constructs a user object.
@@ -24,10 +26,6 @@ public abstract class User {
     private String userPassword;
     private String userRegisterTime;
     private String userRole;
-
-    //UUID parameters of restricting 10-digit format
-    private static final long LIMIT = 10000000000L;
-    private static long last = 0;
     
     //Constructor with parameters
     public User(String userId, String userName, String userPassword, String userRegisterTime, String userRole){
@@ -49,17 +47,28 @@ public abstract class User {
     }
 
     /**
-    * void setUserId: Using UUID library to generate random UserId with long integers
-    * getMostSignificantBits() : Extracts the most significant 64 bits from the UUID and returns it as a long
-    * General idea: we use modulos to reduce the digits to the 10-digit
+     * GENERAL IDEA: Since the requirements involving uniqueness and 10-digit format. For the former one, we could keep track of identical ID by storing it in HashSet
+     * , The latter one will be using RegEx Pattern
+     * Using regular expression for 10-digit ID: 
+     * u_ : match the prefix 
+     * \\d : match any digit (0 -> 9) 
+     * {10} : only 10 digits are allowed
     **/
 
+    private static final Set<String> assignedIDUsers = new HashSet<>();
     public void setUserId(String userId) {
-        long number = Math.abs(UUID.randomUUID().getMostSignificantBits()) % LIMIT;
-        
-        //If the number is 
-        if(number <= last){
-            number = (last + 1) % LIMIT;
+        if(userId  == null || !userId.matches("u_\\d{10}")){
+            System.out.println("Invalid ID input format, please try again!");
+            return;
+
+        }
+        if(!assignedIDUsers.contains(userId)){
+            System.out.println("The ID user " + userId + " has already existed, please try again!");
+            return;
+        }
+        else{
+            this.userId = userId;
+            assignedIDUsers.add(userId);
         }
     }
 
