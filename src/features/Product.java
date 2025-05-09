@@ -1,4 +1,4 @@
-Package features;
+package features;
 
 public class Product {
     private String proId;
