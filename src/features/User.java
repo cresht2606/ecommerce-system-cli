@@ -62,7 +62,7 @@ public abstract class User {
             return;
 
         }
-        if(!assignedIDUsers.contains(userId)){
+        if(assignedIDUsers.contains(userId)){
             System.out.println("The ID user " + userId + " has already existed, please try again!");
             return;
         }

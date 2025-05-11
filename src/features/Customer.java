@@ -21,10 +21,13 @@ public class Customer extends User{
         super(userId, userName, userPassword, userRegisterTime, userRole);
         this.userEmail = userEmail;
         this.userMobile = userMobile;
+        setUserRole("customer");
     }
 
-    //Default constructor
+    //Default constructor (Do nothing but still assign following roles)
     public Customer(){
+        super();
+        setUserRole("customer");
 
     }  
 
