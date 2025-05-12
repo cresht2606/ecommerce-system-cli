@@ -2,12 +2,15 @@
 
 package operation;
 
+import java.util.List;
+import java.util.ArrayList;
+
 import java.util.Random;
 
 import features.User;
 
 public class UserOperation {
-    
+    private List<User> userList = new ArrayList<>();
     private static UserOperation instance;
 
     /**
@@ -118,6 +121,11 @@ public class UserOperation {
     */
 
     public boolean checkUsernameExist(String userName){
+        for(User user : userList){
+            if(user.getUserName().equals(userName)){
+                return true;
+            }
+        }
         return false;
     }   
 
@@ -129,7 +137,15 @@ public class UserOperation {
     */
 
     public boolean validateUsername(String userName){
-        return false;
+        if(userName.length() <= 4){
+            return false;
+        }
+        for(char c : userName.toCharArray()){
+            if(!Character.isLetter(c) && c != '_'){
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
@@ -140,6 +156,22 @@ public class UserOperation {
     * @return true if valid, false otherwise
     */
     public boolean validatePassword(String userPassword){
+        boolean hasLetter = false;
+        boolean hasDigit = false;
+        if(userPassword.length() <= 4){
+            return false;
+        }
+        for(char c : userPassword.toCharArray()){
+            if(Character.isLetter(c)){
+                hasLetter = true;
+            }
+            if(Character.isDigit(c)){
+                hasDigit = true;
+            }
+            if(hasDigit == true && hasLetter == true){
+                return true;
+            }
+        }
         return false;
     }
 
@@ -149,15 +181,21 @@ public class UserOperation {
     * @param userName The username for login
     * @param userPassword The password for login
     * @return A User object (Customer or Admin) if successful, null otherwise
+    * By raising user's functions getUserName() and getUserPassword(), if both are valid → return user, for loop as usual
     */
 
     public User login(String userName, String userPassword){
+        for(User user : userList){
+            if(user.getUserName().equals(userName) && user.getUserPassword().equals(userPassword)){
+                return user;
+            }
+        }
         return null;
     }
 
     //Constructor 
     public UserOperation(){
-        //Load users from file or prepared data
+        //Load users from file or prepared data (JSON)
     }
 
 }
