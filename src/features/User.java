@@ -58,13 +58,11 @@ public abstract class User {
     private static final Set<String> assignedIDUsers = new HashSet<>();
     public void setUserId(String userId) {
         if(userId  == null || !userId.matches("u_\\d{10}")){
-            System.out.println("Invalid ID input format, please try again!");
-            return;
+            throw new IllegalArgumentException("Invalid ID format, Expected to be: u_10_digits");
 
         }
         if(assignedIDUsers.contains(userId)){
-            System.out.println("The ID user " + userId + " has already existed, please try again!");
-            return;
+            throw new IllegalArgumentException("The ID user " + userId + " has already existed, Please try again!");
         }
         else{
             this.userId = userId;

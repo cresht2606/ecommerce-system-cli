@@ -2,9 +2,13 @@
 
 package operation;
 
+import java.util.Random;
+
 import features.User;
 
 public class UserOperation {
+    
+    private static UserOperation instance;
 
     /**
     * Returns the single instance of UserOperation.
@@ -12,7 +16,10 @@ public class UserOperation {
     **/
 
     public static UserOperation getInstance(){
-        return null;
+        if(instance == null){
+            instance = new UserOperation();
+        }
+        return instance;
     }
 
     /**
@@ -21,30 +28,63 @@ public class UserOperation {
     * @return A string value in the format 'u_10digits', e.g., 'u_1234567890'
     **/
 
-    public String generateUniqueUserId(){
-        return null;
+    /** 
+    The idea here is to use time format (but instead convert to miliseconds) since it increases monotonically, thus less repetitive ID.
+    However, milisecond times can be numerously huge so we use % last and LIMIT = 10^10, by which if the newly generated ID is less than or equal to the last one, increment it by 1 to maintain uniqueness
+    Finally, assign it to the String userID with String.format()
+    **/
 
+    private static final long LIMIT = 10000000000L;
+    private static long last = 0;
+
+    public String generateUniqueUserId(){
+        long ID = System.currentTimeMillis() % LIMIT;
+        if(ID <= last){
+            ID = (last + 1) % LIMIT; 
+        }
+
+        last = ID;
+
+        String userID = String.format("u_%010d", ID);
+        return userID;
     }
 
     /**
     * Encode a user-provided password.
     * Encryption steps:
-    * 1. Generate a random string with a length equal to two times
-    * the length of the user-provided password. The random string
-    * should consist of characters chosen from a-zA-Z0-9.
-    * 2. Combine the random string and the input password text to
-    * create an encrypted password, following the rule of selecting
-    * two letters sequentially from the random string and
-    * appending one letter from the input password. Repeat until all
-    * characters in the password are encrypted. Finally, add "^^" at
-    * the beginning and "$$" at the end of the encrypted password.
-    * *
-    @param userPassword The password to encrypt
+    * 1. Defining a String variable consisting of all alphabets (CAPSLOCK & Non-capslock)
+    * 2. Generate a random String with the length twice the length of user password (must include String alphabetic variable and numbers from Random(), as well as defining)
+    * 3. Following the principle: for each two characters in random string, insert a character from user password (Using for loop)
+    * 4. Add "^^" at the beginning and "$$" at the end
+    * Conclusion: Use StringBuilder as a String storage with functionality of appending, indexing and deleting (this will be used for rand_string, encryptedPassword and originalPassword)
+    * @param userPassword The password to encrypt
     * @return Encrypted password
-    */
+    **/
 
     public String encryptPassword(String userPassword){
-        return null;
+        String alphabets = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        StringBuilder rand_string = new StringBuilder();
+        Random rng = new Random();
+        
+        //Generate random string with doubled length of password
+        while(rand_string.length() < userPassword.length() * 2){
+            //Generate random character in alphabets with sufficient length
+            int index = (int) (rng.nextInt(alphabets.length()));
+            rand_string.append(alphabets.charAt(index));
+        }
+
+        StringBuilder encryptedPassword = new StringBuilder();
+        for(int i = 0; i < userPassword.length(); i++){
+            //Multiplying by 2 index will ensure there isn't any repetitive characters (1 - 2, 3 - 4 but not 0 - 1, 1 - 2, 2 - 3) 
+            encryptedPassword.append(rand_string.charAt(i * 2));
+            encryptedPassword.append(rand_string.charAt(i * 2 + 1));
+            encryptedPassword.append(userPassword.charAt(i));
+        }
+
+        encryptedPassword.insert(0, "^^");
+        encryptedPassword.append("$$");
+
+        return encryptedPassword.toString();
     }
 
     /**
@@ -52,9 +92,23 @@ public class UserOperation {
     method.
     * @param encryptedPassword The encrypted password to decrypt
     * @return Original user-provided password
+    * Essentially reverse the progress but with a check at both open ends for "^^" and "$$", then adding back original characters with sequence 2 - 1 - 2 - 1 (2 random, 1 character)
+    * Starting at index = 2 (1), end at the length subtracted by 2 
     */
     public String decryptPassword(String encryptedPassword){
-        return null;
+        if(encryptedPassword.contains("$$") && encryptedPassword.contains("^^")){
+            encryptedPassword = encryptedPassword.substring(2, encryptedPassword.length() - 2);
+        }
+        else{
+            throw new IllegalArgumentException("Invalid encrypted password, expect to go through encryption before decryption!");
+        }
+
+        StringBuilder originalPassword = new StringBuilder();
+        for(int i = 2; i < encryptedPassword.length(); i+= 3){
+            originalPassword.append(encryptedPassword.charAt(i));
+        }
+        
+        return originalPassword.toString();
     }
 
     /**
@@ -99,6 +153,11 @@ public class UserOperation {
 
     public User login(String userName, String userPassword){
         return null;
+    }
+
+    //Constructor 
+    public UserOperation(){
+        //Load users from file or prepared data
     }
 
 }
