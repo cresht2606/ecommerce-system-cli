@@ -195,7 +195,7 @@ public class UserOperation {
 
     //Constructor 
     public UserOperation(){
-        //Load users from file or prepared data (JSON)
+        //Load users from file or prepared data (JSON) (Coming Soon)
     }
 
 }

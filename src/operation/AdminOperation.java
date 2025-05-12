@@ -2,14 +2,18 @@ package operation;
 
 public class AdminOperation {
 
+    private static AdminOperation instance;
+
     /**
     * Returns the single instance of AdminOperation.
     * @return AdminOperation instance
     **/
 
     public static AdminOperation getInstance(){
-        return null;
-
+        if(instance == null){
+            instance = new AdminOperation();
+        }
+        return instance;
     }
 
     /**

@@ -13,8 +13,7 @@ public class Admin extends User{
 
     //Constructor with parameters
     public Admin(String userId, String userName, String userPassword, String userRegisterTime, String userRole){
-        super(userId, userName, userPassword, userRegisterTime, userRole);
-        setUserRole("admin");
+        super(userId, userName, userPassword, userRegisterTime, "admin");
     }
 
     //Default Constructor (Do nothing but still assign following roles)

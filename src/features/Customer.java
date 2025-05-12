@@ -18,10 +18,9 @@ public class Customer extends User{
 
     //Constructor with parameters
     public Customer(String userId, String userName, String userPassword, String userRegisterTime, String userRole, String userEmail, String userMobile){
-        super(userId, userName, userPassword, userRegisterTime, userRole);
+        super(userId, userName, userPassword, userRegisterTime, "customer");
         this.userEmail = userEmail;
         this.userMobile = userMobile;
-        setUserRole("customer");
     }
 
     //Default constructor (Do nothing but still assign following roles)
