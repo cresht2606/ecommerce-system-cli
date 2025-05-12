@@ -198,4 +198,8 @@ public class UserOperation {
         //Load users from file or prepared data (JSON) (Coming Soon)
     }
 
+    public void addUser(User user){
+        userList.add(user);
+    }
+
 }
