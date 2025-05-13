@@ -22,7 +22,6 @@ public class Product {
         this.proLikeCount = proLikeCount;
     }
 
-    // Getters
     public String getProId() { return proId; }
     public String getProName() { return proName; }
     public String getProCategory() { return proCategory; }
