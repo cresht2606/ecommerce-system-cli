@@ -2,36 +2,35 @@ package features;
 
 public class Product {
     private String proId;
-    private String proModel;
-    private String proCategory;
     private String proName;
+    private String proCategory;
+    private String proModel;
     private double proCurrentPrice;
     private double proRawPrice;
     private double proDiscount;
-    private int proLikesCount;
+    private int proLikeCount;
 
-    public Product(String proId, String proModel, String proCategory,
-                   String proName, double proCurrentPrice, double proRawPrice,
-                   double proDiscount, int proLikesCount) {
+    public Product(String proId, String proName, String proCategory, String proModel,
+                   double proCurrentPrice, double proRawPrice, double proDiscount, int proLikeCount) {
         this.proId = proId;
-        this.proModel = proModel;
-        this.proCategory = proCategory;
         this.proName = proName;
+        this.proCategory = proCategory;
+        this.proModel = proModel;
         this.proCurrentPrice = proCurrentPrice;
         this.proRawPrice = proRawPrice;
         this.proDiscount = proDiscount;
-        this.proLikesCount = proLikesCount;
+        this.proLikeCount = proLikeCount;
     }
 
-    public Product() {
-        this("", "", "", "", 0.0, 0.0, 0.0, 0);
-    }
+    public String getProId() { return proId; }
+    public String getProName() { return proName; }
+    public String getProCategory() { return proCategory; }
+    public String getProModel() { return proModel; }
+    public double getProCurrentPrice() { return proCurrentPrice; }
 
     @Override
     public String toString() {
-        return String.format(
-            "{\"pro_id\":\"%s\", \"pro_model\":\"%s\", \"pro_category\":\"%s\", \"pro_name\":\"%s\", \"pro_current_price\":\"%.2f\", \"pro_raw_price\":\"%.2f\", \"pro_discount\":\"%.2f\", \"pro_likes_count\":\"%d\"}",
-            proId, proModel, proCategory, proName, proCurrentPrice, proRawPrice, proDiscount, proLikesCount
-        );
+        return String.format("{\"proId\":\"%s\", \"name\":\"%s\", \"price\":%.2f, \"like\":%d}",
+                proId, proName, proCurrentPrice, proLikeCount);
     }
 }
