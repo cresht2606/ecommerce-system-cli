@@ -1,6 +1,7 @@
 package operation;
 
 import java.util.List;
+import features.Product;
 
 public class ProductListResult {
     private List<Product> products;

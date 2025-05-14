@@ -78,28 +78,31 @@ public class IOInterface {
     
     public void showMainMenu() {
         System.out.println("\n==== E-COMMERCE SYSTEM ====");
-        System.out.println("1. Log in");
-        System.out.println("2. Register as Customer");
-        System.out.println("3. Exit");
+        System.out.println("1. Login");
+        System.out.println("2. Register");
+        System.out.println("3. Quit");
     }
 
     
     public void showAdminMenu() {
         System.out.println("\n==== ADMIN MENU ====");
-        System.out.println("1. Manage Users");
-        System.out.println("2. Manage Products");
-        System.out.println("3. Manage Orders");
-        System.out.println("4. View Statistics");
-        System.out.println("5. Log out");
+        System.out.println("1. Show products");
+        System.out.println("2. Add customers");
+        System.out.println("3. Show customers");
+        System.out.println("4. Show orders");
+        System.out.println("5. Generate test data");
+        System.out.println("6. Generate all statistical figures");
+        System.out.println("7. Delete all data");
+        System.out.println("8. Logout");        
     }
 
     
     public void showCustomerMenu() {
         System.out.println("\n==== CUSTOMER MENU ====");
-        System.out.println("1. View Products");
-        System.out.println("2. Place an Order");
-        System.out.println("3. View My Orders");
-        System.out.println("4. Update Profile");
-        System.out.println("5. Log out");
+        System.out.println("1. Show profile");
+        System.out.println("2. Update profile");
+        System.out.println("3. Show products");
+        System.out.println("4. Show history orders");
+        System.out.println("5. Logout");
     }
 }
