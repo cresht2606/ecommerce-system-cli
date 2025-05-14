@@ -2,15 +2,17 @@
 
 package operation;
 
-import java.util.List;
-import java.util.ArrayList;
-
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 
+import features.Customer;
 import features.User;
 
 public class UserOperation {
-    private List<User> userList = new ArrayList<>();
     private static UserOperation instance;
 
     /**
@@ -120,14 +122,28 @@ public class UserOperation {
     * @return true if exists, false otherwise
     */
 
-    public boolean checkUsernameExist(String userName){
-        for(User user : userList){
-            if(user.getUserName().equals(userName)){
-                return true;
+    public boolean checkUsernameExist(String userName) {
+        try (BufferedReader reader = new BufferedReader(new FileReader("ecommerce-system-cli/database/users.txt"))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                // Split the line to get the user details
+                String[] userDetails = line.replaceAll("[{}\"]", "").split(",");
+                Map<String, String> userMap = new HashMap<>();
+                for (String detail : userDetails) {
+                    String[] keyValue = detail.split(":");
+                    userMap.put(keyValue[0].trim(), keyValue[1].trim());
+                }
+
+                // Check if the username matches any existing user
+                if (userMap.get("user_name").equals(userName)) {
+                    return true;
+                }
             }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
         return false;
-    }   
+    }
 
     /**
     * Validate the user's name. The name should only contain letters or
@@ -181,25 +197,42 @@ public class UserOperation {
     * @param userName The username for login
     * @param userPassword The password for login
     * @return A User object (Customer or Admin) if successful, null otherwise
-    * By raising user's functions getUserName() and getUserPassword(), if both are valid → return user, for loop as usual
     */
 
-    public User login(String userName, String userPassword){
-        for(User user : userList){
-            if(user.getUserName().equals(userName) && user.getUserPassword().equals(userPassword)){
-                return user;
+    public User login(String userName, String userPassword) {
+        try (BufferedReader reader = new BufferedReader(new FileReader("ecommerce-system-cli/database/users.txt"))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] userDetails = line.replaceAll("[{}\"]", "").split(",");
+                Map<String, String> userMap = new HashMap<>();
+                for (String detail : userDetails) {
+                    String[] keyValue = detail.split(":");
+                    userMap.put(keyValue[0].trim(), keyValue[1].trim());
+                }
+
+                // Check if the username and password match
+                if (userMap.get("user_name").equals(userName) && userMap.get("user_password").equals(userPassword)) {
+                    String role = userMap.get("user_role");
+
+                    if ("customer".equals(role)) {
+                        return new Customer(
+                            userMap.get("user_id"),
+                            userMap.get("user_name"),
+                            userMap.get("user_password"),
+                            userMap.get("user_register_time"),
+                            "customer",
+                            userMap.get("user_email"),
+                            userMap.get("user_mobile")
+                        );
+                    }
+
+                    // You could add more roles (e.g., Admin) here if needed
+                }
             }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
         return null;
-    }
-
-    //Constructor 
-    public UserOperation(){
-        //Load users from file or prepared data (JSON) (Coming Soon)
-    }
-
-    public void addUser(User user){
-        userList.add(user);
     }
 
 }

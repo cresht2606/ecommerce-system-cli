@@ -106,7 +106,7 @@ public abstract class User {
             this.userRegisterTime = sdf.format(date);
         } 
         catch (ParseException e){
-            System.out.println("Invalid date format, please try again!");
+            throw new IllegalArgumentException("Invalid date format, please try again!");
         }
     }
 
