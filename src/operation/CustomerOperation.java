@@ -2,7 +2,7 @@ package operation;
 
 import features.Customer;
 
-import java.util.regex.*;
+import java.util.regex.Pattern;
 import java.io.BufferedReader;
 
 //Save .txt files
@@ -106,7 +106,7 @@ public class CustomerOperation {
         }
 
         //Generate unique UserId, since UserOperation is a singleton and only one instance of the class exist during runtime
-        String userId = UserOperation.getInstance().generateUniqueUserId();
+        String userId = userOp.generateUniqueUserId();
 
         //Get current time
         String registerTime = new SimpleDateFormat("dd-MM-yyyy_HH:mm:ss").format(new Date());
@@ -275,7 +275,7 @@ public class CustomerOperation {
         //Calculate total number of customers, pages and maximum allocation for customers storage
         int totalCustomers = allCustomerLines.size();
         int pageSize = 10;
-        int totalPages = (int) Math.ceil(totalCustomers / 10); //Type-casting
+        int totalPages = (int) Math.ceil(totalCustomers / 10.0); //Type-casting
 
         //Validate the requested page number
         if(pageNumber < 1 || pageNumber > totalPages){
@@ -297,13 +297,31 @@ public class CustomerOperation {
 
     /**
     * Removes all the customers from the data/users.txt file.
+    * But not remove all other admins so we need to filter only keyword "customer"
     */
 
     public void deleteAllCustomers() {
-        try(PrintWriter writer = new PrintWriter("ecommerce-system-cli/database/users.txt")){
-            //This will leave the blank space on users.txt
-        }catch(IOException e){
+        File inputFile = new File("ecommerce-system-cli/database/users.txt");
+        File tempFile = new File("ecommerce-system-cli/database/backup_users.txt");
+
+        try(
+            BufferedReader reader = new BufferedReader(new FileReader(inputFile));
+            BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile))
+        ){
+            String line;
+
+            while((line = reader.readLine()) != null){
+                if(!line.contains("\"user_role\":\"customer\"")){
+                    writer.write(line);
+                    writer.newLine();
+                }
+            }
+        } catch(IOException e){
             e.printStackTrace();
+            return;
+        }
+        if(!inputFile.delete() || !tempFile.renameTo(tempFile)){
+            //Leave blank as unsuccessful deletion
         }
     }
 
