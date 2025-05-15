@@ -1,10 +1,10 @@
 package operation;
 
 import features.Customer;
-import features.User;
 
 import java.util.regex.*;
 import java.io.BufferedReader;
+
 //Save .txt files
 import java.io.BufferedWriter;
 import java.io.FileWriter;
@@ -12,10 +12,14 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.File;
 import java.io.FileReader;
+
 //Set current time of shopping
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 
+//Set Customer list
+import java.util.List;
 
 
 public class CustomerOperation {
@@ -244,7 +248,51 @@ public class CustomerOperation {
     pages
     */
     public CustomerListResult getCustomerList(int pageNumber){
-        return null;
+
+        //Create a list to store Customers' information
+        List<String> allCustomerLines = new ArrayList<>();
+
+        //Read the users.txt by storing it as filepath
+        File inputFile = new File("ecommerce-system-cli/database/users.txt");
+
+
+        try(BufferedReader reader = new BufferedReader(new FileReader(inputFile))){
+            String line;
+            //Read the file line by line
+            while((line = reader.readLine()) != null){
+                //Check to see whether the lines contains appropriate format below
+                if(line.contains("\"user_role\":\"customer\"")){
+                    //Add customer to the list
+                    allCustomerLines.add(line);
+                }
+            }
+        } catch (IOException e){
+            e.printStackTrace();
+            //If raising error, return an empty customer list with 0 total pages
+            return new CustomerListResult(new ArrayList<>(), pageNumber, 0);
+        }
+        
+        //Calculate total number of customers, pages and maximum allocation for customers storage
+        int totalCustomers = allCustomerLines.size();
+        int pageSize = 10;
+        int totalPages = (int) Math.ceil(totalCustomers / 10); //Type-casting
+
+        //Validate the requested page number
+        if(pageNumber < 1 || pageNumber > totalPages){
+            //If the pageNumber does not exist or exceeds the limit page → Return empty Customer list
+            return new CustomerListResult(new ArrayList<>(), pageNumber, totalPages);
+        }
+
+        //Determine the start and end indices for the current page
+        int start = (pageNumber - 1) * pageSize;
+        int end = Math.min(start + pageSize, totalCustomers);
+
+        //Extract the sublist of customers for the page
+        List<String> pageCustomers = allCustomerLines.subList(start, end);
+
+        //Return the Customer list
+        return new CustomerListResult(pageCustomers, pageNumber, totalPages);
+
     }
 
     /**
