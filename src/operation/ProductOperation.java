@@ -1,8 +1,15 @@
 package operation;
+import features.Product;
 
 import java.util.List;
-
-import features.Product;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.BufferedReader;
+import java.util.BufferedWriter;
 
 public class ProductOperation{
     private static ProductOperation instance;
@@ -19,8 +26,73 @@ public class ProductOperation{
     * The data is saved into the data/products.txt file.
     */
     public void extractProductsFromFiles() {
-    // Implementation
+        File sourceFile = new File("ecommerce-system-cli/raw_data/raw_products.txt");  // arbitrary file name
+        File targetFile = new File("ecommerce-system-cli/database/products.txt");  // where we store products
+
+        try (
+            BufferedReader reader = new BufferedReader(new FileReader(sourceFile));
+            BufferedWriter writer = new BufferedWriter(new FileWriter(targetFile, false))  // overwrite mode
+        ) {
+            String line;
+            
+            // Regex pattern to extract key-value pairs from the JSON-like format
+            Pattern pattern = Pattern.compile("\"(.*?)\":\"(.*?)\"");
+
+            while ((line = reader.readLine()) != null) {
+                line = line.trim();  // Remove any unnecessary spaces or newline characters
+                
+                // Skip empty lines
+                if (line.isEmpty()) {
+                    continue;
+                }
+
+                // Initialize a temporary product object
+                Product product = new Product();
+
+                // Match all key-value pairs in the line
+                Matcher matcher = pattern.matcher(line);
+                while (matcher.find()) {
+                    String key = matcher.group(1);
+                    String value = matcher.group(2);
+
+                    // Populate the Product object based on the key-value pairs
+                    switch (key) {
+                        case "pro_id":
+                            product.setProId(value);
+                            break;
+                        case "pro_model":
+                            product.setProModel(value);
+                            break;
+                        case "pro_category":
+                            product.setProCategory(value);
+                            break;
+                        case "pro_name":
+                            product.setProName(value);
+                            break;
+                        case "pro_current_price":
+                            product.setProCurrentPrice(Double.parseDouble(value));
+                            break;
+                        case "pro_raw_price":
+                            product.setProRawPrice(Double.parseDouble(value));
+                            break;
+                        case "pro_discount":
+                            product.setProDiscount(Double.parseDouble(value));
+                            break;
+                        case "pro_likes_count":
+                            product.setProLikeCount(Integer.parseInt(value));
+                            break;
+                    }
+                }
+
+                // Write the Product's string representation to the target file
+                writer.write(product.toString());
+                writer.newLine();
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
     }
+}
 
     /**
     * Retrieves one page of products from the database.
@@ -105,38 +177,3 @@ public class ProductOperation{
 
 
 }
-
-/*
-public class ProductOperation {
-    private static ProductOperation instance;
-    private List<Product> products;
-
-    private ProductOperation() {
-        products = new ArrayList<>();
-    }
-
-    public static ProductOperation getInstance() {
-        if (instance == null) {
-            instance = new ProductOperation();
-        }
-        return instance;
-    }
-
-    public void addProduct(Product product) {
-        products.add(product);
-    }
-
-    public List<Product> getAllProducts() {
-        return products;
-    }
-
-    public Product getProductById(String proId) {
-        for (Product p : products) {
-            if (p.toString().contains(proId)) {
-                return p;
-            }
-        }
-        return null;
-    }
-}
-*/
