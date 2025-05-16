@@ -38,7 +38,11 @@ public abstract class User {
 
     //Default constructor
     public User(){
-
+        this.userId = "";
+        this.userName = "";
+        this.userPassword = "";
+        this.userRegisterTime = "";
+        this.userRole = "customer";
     }
 
     //Getters and Setters
@@ -118,11 +122,13 @@ public abstract class User {
         this.userRole = userRole;
     }
 
-    //Default information display format
     @Override
     public String toString(){
-        return "{ " + "user_id" + ":" + getUserId() + ", " + "user_name" + ":" + getUserName() + ", " + "user_password" + ":" + getUserPassword() + ", " + "user_register_time" + ":" + getUserRegisterTime() + ", " + "user_role" + ":" + getUserRole() + " }";
+        return String.format(
+            "{\"user_id\":\"%s\", \"user_name\":\"%s\", \"user_password\":\"%s\", " +
+            "\"user_register_time\":\"%s\", \"user_role\":\"%s\"}",
+            userId, userName, userPassword, userRegisterTime, userRole
+        );    
     }
-
     
 }

@@ -1,5 +1,9 @@
 package features;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 public class Order {
     private String orderId;
     private String userId;
@@ -48,9 +52,17 @@ public class Order {
         this.proId = proId;
     }
     public void setOrderTime(String orderTime) {
-        this.orderTime = orderTime;
-    }
+        SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy_HH:mm:ss");
+        sdf.setLenient(false);
 
+        try{
+            Date date = sdf.parse(orderTime);
+            this.orderTime = sdf.format(date);
+        } catch (ParseException e){
+            throw new IllegalArgumentException("Invalid date format. Expected format: DD-MM-YYYY_HH:MM:SS");
+        }
+
+    }
 
     @Override
     public String toString() {
