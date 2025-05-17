@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
+import features.Admin;
 import features.Customer;
 import features.User;
 
@@ -202,16 +203,21 @@ public class UserOperation {
     public User login(String userName, String userPassword) {
         try (BufferedReader reader = new BufferedReader(new FileReader("ecommerce-system-cli/database/users.txt"))) {
             String line;
+            String encryptedInputPassword = encryptPassword(userPassword);
+
             while ((line = reader.readLine()) != null) {
                 String[] userDetails = line.replaceAll("[{}\"]", "").split(",");
                 Map<String, String> userMap = new HashMap<>();
                 for (String detail : userDetails) {
                     String[] keyValue = detail.split(":");
-                    userMap.put(keyValue[0].trim(), keyValue[1].trim());
+                    if (keyValue.length == 2) {
+                        userMap.put(keyValue[0].trim(), keyValue[1].trim());
+                    }
                 }
 
-                // Check if the username and password match
-                if (userMap.get("user_name").equals(userName) && userMap.get("user_password").equals(userPassword)) {
+                if (userMap.get("user_name").equals(userName) &&
+                    userMap.get("user_password").equals(encryptedInputPassword)) {
+
                     String role = userMap.get("user_role");
 
                     if ("customer".equals(role)) {
@@ -224,14 +230,21 @@ public class UserOperation {
                             userMap.get("user_email"),
                             userMap.get("user_mobile")
                         );
+                    } else if ("admin".equals(role)) {
+                        return new Admin(
+                            userMap.get("user_id"),
+                            userMap.get("user_name"),
+                            userMap.get("user_password"),
+                            userMap.get("user_register_time"),
+                            "admin"
+                        );
                     }
-
-                    // You could add more roles (e.g., Admin) here if needed
                 }
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
+
         return null;
     }
 

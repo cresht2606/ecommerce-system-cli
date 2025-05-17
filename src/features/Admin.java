@@ -12,7 +12,7 @@ package features;
 public class Admin extends User{
 
     //Constructor with parameters
-    public Admin(String userId, String userName, String userPassword, String userRegisterTime){
+    public Admin(String userId, String userName, String userPassword, String userRegisterTime, String userRole){
         super(userId, userName, userPassword, userRegisterTime, "admin");
     }
 
