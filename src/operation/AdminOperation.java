@@ -1,5 +1,16 @@
 package operation;
 
+import features.Admin;
+
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 public class AdminOperation {
 
     private static AdminOperation instance;
@@ -24,6 +35,30 @@ public class AdminOperation {
     **/
     
     public void registerAdmin(){
+        File userFile = new File("ecommerce-system-cli/database/users.txt");
+        String defaultAdminId = "u_0000000001";
+
+        try(BufferedReader reader = new BufferedReader(new FileReader(userFile))){
+            String line;
+            while((line = reader.readLine()) != null){
+                if(line.contains("\"user_id\":\"" + defaultAdminId + "\"") && line.contains("\"user_role\":\"admin\"")){
+                    return; //The Admin account is already registered
+                }
+            }
+        } catch (IOException ignored){
+            //Leave blank
+        }
+
+        String registerTime = new SimpleDateFormat("dd-MM-yyyy_HH:mm:ss").format(new Date());
+        Admin defaultAdmin = new Admin(defaultAdminId, "admin", "admin123", registerTime);
+
+        try(BufferedWriter writer = new BufferedWriter(new FileWriter(userFile, true))){
+            writer.write(defaultAdmin.toString());
+            writer.newLine();
+        } catch (IOException e){
+            e.printStackTrace();
+        }
+
     }
 
 }

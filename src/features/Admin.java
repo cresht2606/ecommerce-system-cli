@@ -12,7 +12,7 @@ package features;
 public class Admin extends User{
 
     //Constructor with parameters
-    public Admin(String userId, String userName, String userPassword, String userRegisterTime, String userRole){
+    public Admin(String userId, String userName, String userPassword, String userRegisterTime){
         super(userId, userName, userPassword, userRegisterTime, "admin");
     }
 
@@ -23,8 +23,11 @@ public class Admin extends User{
     }
 
     @Override
-    public String toString(){
-        return "{ " + "user_id" + ":" + getUserId() + ", " + "user_name" + ":" + getUserName() + ", " + "user_password" + ":" + getUserPassword() + ", " + "user_register_time" + ":" + getUserRegisterTime() + ", " + "user_role" + ":" + getUserRole() + " }";
+    public String toString() {
+        return String.format(
+            "{\"user_id\":\"%s\", \"user_name\":\"%s\", \"user_password\":\"%s\", \"user_register_time\":\"%s\", \"user_role\":\"%s\"}",
+            getUserId(), getUserName(), getUserPassword(), getUserRegisterTime(), getUserRole()
+        );
     }
 
 }
