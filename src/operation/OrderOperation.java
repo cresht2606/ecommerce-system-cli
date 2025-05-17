@@ -89,69 +89,56 @@ public class OrderOperation{
     * @param orderId The ID of the order to delete
     * @return true if successful, false otherwise
     */
+
     public boolean deleteOrder(String orderId) {
         File inputFile = new File("ecommerce-system-cli/database/orders.txt");
         File tempFile = new File("ecommerce-system-cli/database/backup_orders.txt");
         boolean deleted = false;
 
-        try(
+        try (
             BufferedReader reader = new BufferedReader(new FileReader(inputFile));
             BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile))
-        ){
+        ) {
             String currentLine;
 
-            while((currentLine = reader.readLine()) != null){
-                String extractedId = extractOrderId(currentLine);
-                if(orderId.equals(extractedId)){
+            while ((currentLine = reader.readLine()) != null) {
+                String extractedId = extractValue(currentLine, "order_id");
+                if (orderId.equals(extractedId)) {
                     deleted = true;
                     continue;
                 }
                 writer.write(currentLine);
                 writer.newLine();
             }
-        } catch(IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
             return false;
         }
-        if(deleted){
-            if(!inputFile.delete() || !tempFile.renameTo(inputFile)){
+
+        if (deleted) {
+            if (!inputFile.delete() || !tempFile.renameTo(inputFile)) {
                 return false;
             }
-        } else{
+        } else {
             tempFile.delete();
         }
+
         return deleted;
     }
 
-    //Helper extract orderId
-    public String extractOrderId(String dataline){
-        String key = "\"order_id\":\"";
-        int start = dataline.indexOf(key);
-        if(start == -1){
+    public String extractValue(String dataline, String key) {
+        String searchKey = "\"" + key + "\":\"";
+        int start = dataline.indexOf(searchKey);
+        if (start == -1) {
             return null;
         }
-        start += key.length();
+        start += searchKey.length();
         int end = dataline.indexOf("\"", start);
-        if(end == -1){
+        if (end == -1) {
             return null;
         }
         return dataline.substring(start, end);
     }
-
-    //Helper extract of order_id, user_id, pro_id, order_time
-    public String extractValue(String dataline, String key) {
-    String searchKey = "\"" + key + "\":\"";
-    int start = dataline.indexOf(searchKey);
-    if (start == -1) {
-        return null;
-    }
-    start += searchKey.length();
-    int end = dataline.indexOf("\"", start);
-    if (end == -1) {
-        return null;
-    }
-    return dataline.substring(start, end);
-}
 
     /**
     * Retrieves one page of orders from the database belonging to the
