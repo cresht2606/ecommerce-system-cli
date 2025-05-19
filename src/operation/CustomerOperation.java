@@ -16,9 +16,10 @@ import java.io.FileReader;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-
+import java.util.HashSet;
 //Set Customer list
 import java.util.List;
+import java.util.Set;
 
 
 public class CustomerOperation {
@@ -106,6 +107,7 @@ public class CustomerOperation {
 
         //Generate unique UserId, since UserOperation is a singleton and only one instance of the class exist during runtime
         String userId = userOp.generateUniqueUserId();
+        String encrypted_pass = userOp.encryptPassword(userPassword);
 
         //Get current time
         String registerTime = new SimpleDateFormat("dd-MM-yyyy_HH:mm:ss").format(new Date());
@@ -115,7 +117,7 @@ public class CustomerOperation {
         try{
             customer.setUserId(userId);
             customer.setUserName(userName);
-            customer.setUserPassword(userPassword);
+            customer.setUserPassword(encrypted_pass);
             customer.setUserRegisterTime(registerTime);
             customer.setUserRole("customer");
             customer.setUserEmail(userEmail);
@@ -151,37 +153,72 @@ public class CustomerOperation {
     * @param customerObject The customer object to update
     * @return true if updated, false if failed
     */
-    public boolean updateProfile(String attributeName, String value, Customer customerObject){
+
+    public boolean updateProfile(String attributeName, String value, Customer customerObject) {
         UserOperation userOp = UserOperation.getInstance();
-        if("userName".equalsIgnoreCase(attributeName)){
-            if(!userOp.validateUsername(value)){
-                return false;
-            }
+
+        // Validate and update in-memory object
+        if ("userName".equalsIgnoreCase(attributeName)) {
+            if (!userOp.validateUsername(value)) return false;
             customerObject.setUserName(value);
-            return true;
-        }
-        else if("userPassword".equalsIgnoreCase(attributeName)){
-            if(!userOp.validatePassword(value)){
-                return false;
-            }
-            customerObject.setUserPassword(value);
-            return true;
-        }
-        else if("userEmail".equalsIgnoreCase(attributeName)){
-            if(!validateEmail(value)){
-                return false;
-            }
+        } else if ("userPassword".equalsIgnoreCase(attributeName)) {
+            if (!userOp.validatePassword(value)) return false;
+            customerObject.setUserPassword(userOp.encryptPassword(value)); // Encrypt before saving
+        } else if ("userEmail".equalsIgnoreCase(attributeName)) {
+            if (!validateEmail(value)) return false;
             customerObject.setUserEmail(value);
-            return true;
-        }
-        else if("userMobile".equalsIgnoreCase(attributeName)){
-            if(!validateMobile(value)){
-                return false;
-            }
+        } else if ("userMobile".equalsIgnoreCase(attributeName)) {
+            if (!validateMobile(value)) return false;
             customerObject.setUserMobile(value);
-            return true;
+        } else {
+            return false; // Unknown attribute
         }
-        return false;
+
+        // Read all lines and update the matching customer
+        File inputFile = new File("database\\users.txt");
+        List<String> updatedLines = new ArrayList<>();
+        boolean found = false;
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(inputFile))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String userId = extractUserId(line);
+                if (userId != null && userId.equals(customerObject.getUserId())) {
+                    // Found the user, replace with updated data
+                    String updatedLine = "{"
+                        + "\"user_id\":\"" + customerObject.getUserId() + "\","
+                        + "\"user_name\":\"" + customerObject.getUserName() + "\","
+                        + "\"user_password\":\"" + customerObject.getUserPassword() + "\","
+                        + "\"user_register_time\":\"" + customerObject.getUserRegisterTime() + "\","
+                        + "\"user_role\":\"" + customerObject.getUserRole() + "\","
+                        + "\"user_email\":\"" + customerObject.getUserEmail() + "\","
+                        + "\"user_mobile\":\"" + customerObject.getUserMobile() + "\""
+                        + "}";
+                    updatedLines.add(updatedLine);
+                    found = true;
+                } else {
+                    updatedLines.add(line);
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+
+        if (!found) return false;
+
+        // Overwrite the file
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(inputFile, false))) {
+            for (String updatedLine : updatedLines) {
+                writer.write(updatedLine);
+                writer.newLine();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+
+        return true;
     }
 
     /**
@@ -234,6 +271,21 @@ public class CustomerOperation {
         start += key.length();
         int end = dataline.indexOf("\"", start);
         if(end == -1){
+            return null;
+        }
+        return dataline.substring(start, end);
+    }
+
+    //Helper extract userName
+    public String extractUserName(String dataline) {
+        String key = "\"user_name\":\"";
+        int start = dataline.indexOf(key);
+        if (start == -1) {
+            return null;
+        }
+        start += key.length();
+        int end = dataline.indexOf("\"", start);
+        if (end == -1) {
             return null;
         }
         return dataline.substring(start, end);
@@ -300,28 +352,98 @@ public class CustomerOperation {
     */
 
     public void deleteAllCustomers() {
-        File inputFile = new File("ecommerce-system-cli/database/users.txt");
-        File tempFile = new File("ecommerce-system-cli/database/backup_users.txt");
+        File inputFile = new File("database\\users.txt");
+        List<String> preservedLines = new ArrayList<>();
 
-        try(
-            BufferedReader reader = new BufferedReader(new FileReader(inputFile));
-            BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile))
-        ){
+        // Step 1: Read and filter lines
+        try (BufferedReader reader = new BufferedReader(new FileReader(inputFile))) {
             String line;
-
-            while((line = reader.readLine()) != null){
-                if(!line.contains("\"user_role\":\"customer\"")){
-                    writer.write(line);
-                    writer.newLine();
+            while ((line = reader.readLine()) != null) {
+                // Keep all lines except those of customers
+                if (!line.contains("\"user_role\":\"customer\"")) {
+                    preservedLines.add(line);
                 }
             }
-        } catch(IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
             return;
         }
-        if(!inputFile.delete() || !tempFile.renameTo(tempFile)){
-            //Leave blank as unsuccessful deletion
+
+        // Step 2: Overwrite the file with preserved (non-customer) lines
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(inputFile, false))) {
+            for (String line : preservedLines) {
+                writer.write(line);
+                writer.newLine();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
+
+    /**
+    * Read other customer files .txt and copy those customers (if not presented) into users.txt
+    */
+
+    public boolean importCustomersFromFile(String sourceFileName) {
+        File sourceFile = new File("database\\" + sourceFileName);
+        File targetFile = new File("database\\users.txt");
+
+        if (!sourceFile.exists()) {
+            System.err.println("Source file not found: " + sourceFileName);
+            return false;
+        }
+
+        // Step 1: Read all existing usernames from users.txt
+        Set<String> existingUsernames = new HashSet<>();
+        try (BufferedReader reader = new BufferedReader(new FileReader(targetFile))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String username = extractUserName(line);
+                if (username != null) {
+                    existingUsernames.add(username);
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+
+        // Step 2: Read from source file and append non-duplicates
+        int importedCount = 0;
+
+        try (
+            BufferedReader reader = new BufferedReader(new FileReader(sourceFile));
+            BufferedWriter writer = new BufferedWriter(new FileWriter(targetFile, true)) // Append mode
+        ) {
+            String line;
+
+            while ((line = reader.readLine()) != null) {
+                if (!line.contains("\"user_role\":\"customer\"")) {
+                    continue;
+                }
+
+                String username = extractUserName(line);
+                if (username == null || existingUsernames.contains(username)) {
+                    continue; // Skip duplicates
+                }
+
+                writer.write(line);
+                writer.newLine();
+                existingUsernames.add(username); // Add to avoid future duplicates in this run
+                importedCount++;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+
+        if (importedCount == 0) {
+            System.out.println("No new customers were imported (all may already exist).");
+            return false;
+        }
+
+        return true;
+    }
+
 
 }

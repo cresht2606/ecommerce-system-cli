@@ -1,8 +1,7 @@
-import java.io.IOException;
-
 import features.*;
 import operation.*;
 import io.IOInterface;
+import java.util.List;
 
 public class main{
     public static void main(String[] args) {
@@ -90,17 +89,62 @@ public class main{
                 switch (choice) {
                     case "1":
                         // Show products
-                        ProductListResult result = ProductOperation.getInstance().getProductList(1);
-                        io.showList("admin", "Product", result.getProducts(), result.getCurrentPage(), result.getTotalPages());
+                        int product_page = 1;
+                        while(true){
+                            ProductListResult result = ProductOperation.getInstance().getProductList(1);
+                            if(result.getProducts().isEmpty()){
+                                io.printMessage("No products found!\n");
+                                break;
+                            }
+                            io.showList("admin", "Product", result.getProducts(), result.getCurrentPage(), result.getTotalPages());
+                            
+                            String nav = io.getUserInput("Enter 'n' for next, 'p' for previous, or 'b' to go back: ", 1)[0];
+
+                            if (nav.equalsIgnoreCase("n") && product_page < result.getTotalPages()) {
+                                product_page++;
+                            } else if (nav.equalsIgnoreCase("p") && product_page > 1) {
+                                product_page--;
+                            } else if (nav.equalsIgnoreCase("b")) {
+                                break;
+                            } else {
+                                io.printErrorMessage("Admin Navigation", "Invalid navigation input.");
+                            }
+                        }
                         break;
-                    case "2":
-                        // Add customers (call registration logic)
-                        handleCustomerRegistration(); 
+                    case "2": 
+                        String fileName = io.getUserInput("Enter the filename to import from (e.g., other_users.txt): ", 1)[0];
+                        boolean success = CustomerOperation.getInstance().importCustomersFromFile(fileName);
+                        if (success) {
+                            io.printMessage("Customers successfully imported into users.txt!\n");
+                        } else {
+                            io.printErrorMessage("Import", "Failed to import customers. Check file path or format.");
+                        }
                         break;
-                    case "3":
-                        // Show customers
-                        CustomerListResult custResult = CustomerOperation.getInstance().getCustomerList(1);
-                        io.showList("admin", "Customer", custResult.getCustomers(), custResult.getCurrentPage(), custResult.getTotalPages());
+                    
+                    case "3": 
+                        int customer_page = 1;
+                        while (true) {
+                            CustomerListResult custResult = CustomerOperation.getInstance().getCustomerList(customer_page);
+
+                            if (custResult.getCustomers().isEmpty()) {
+                                io.printMessage("No customers found!\n");
+                                break;
+                            }
+
+                            io.showList("admin", "Customer", custResult.getCustomers(), custResult.getCurrentPage(), custResult.getTotalPages());
+
+                            String nav = io.getUserInput("Enter 'n' for next, 'p' for previous, or 'b' to go back:", 1)[0];
+
+                            if (nav.equalsIgnoreCase("n") && customer_page < custResult.getTotalPages()) {
+                                customer_page++;
+                            } else if (nav.equalsIgnoreCase("p") && customer_page > 1) {
+                                customer_page--;
+                            } else if (nav.equalsIgnoreCase("b")) {
+                                break;
+                            } else {
+                                io.printErrorMessage("Customer Navigation", "Invalid input.");
+                            }
+                        }
                         break;
                     case "4":
                         String[] inputOrder = io.getUserInput("Enter the customer ID to view orders: ", 1);
@@ -127,7 +171,7 @@ public class main{
                             } else if (nav.equalsIgnoreCase("b")) {
                                 break;
                             } else {
-                                io.printErrorMessage("Admin Order Menu", "Invalid navigation input.");
+                                io.printErrorMessage("Order Navigation", "Invalid navigation input.");
                             }
                         }
                         break;
@@ -138,19 +182,13 @@ public class main{
                     case "6":
                         // Generate figures
                         break;
-                    case "7":
-                        io.printMessage("Are you sure you want to delete all data? This action cannot be undone. (Y/N): ");
-                        String confirmation = io.getUserInput("", 1)[0];
-
-                        if (confirmation.equalsIgnoreCase("yes")) {
+                    case "7": 
+                        String confirmation = io.getUserInput("Are you sure you want to delete all data? This action cannot be undone. (Y/N):", 1)[0];
+                        if (confirmation.equalsIgnoreCase("y") || confirmation.equalsIgnoreCase("yes")) {
                             ProductOperation.getInstance().deleteAllProducts();
                             CustomerOperation.getInstance().deleteAllCustomers();
                             OrderOperation.getInstance().deleteAllOrders();
-
                             io.printMessage("All data has been deleted successfully.\n");
-
-                            // Optional: re-register admin account if needed
-                            AdminOperation.getInstance().registerAdmin();
                         } else {
                             io.printMessage("Deletion cancelled.\n");
                         }
@@ -183,13 +221,58 @@ public class main{
                         io.printObject(customer);
                         break;
                     case "2":
-                        // Update profile (you can request attribute name and value interactively)
+                        // Ask for the attribute to update
+                        String attribute = io.getUserInput(
+                            "Enter the desired attribute you want to update (userName, userPassword, userEmail, userMobile):",
+                            1
+                        )[0];
+
+                        // Ask for the new value
+                        String newValue = io.getUserInput("Enter new information value:", 1)[0];
+
+                        boolean updated = CustomerOperation.getInstance().updateProfile(attribute, newValue, (Customer) customer);
+                        if (updated) {
+                            io.printMessage("Update profile successfully!\n");
+                        } else {
+                            io.printErrorMessage("Profile Update", "Failed to update attribute. Check again format or validity!");
+                        }
                         break;
                     case "3":
-                        // Show product list or by keyword
+                        io.printMessage("Enter '3' to view all products or '3 keyword' to search: ");
+                        String[] keyword_input = io.getUserInput("", 1);
+
+                        if(keyword_input.length == 1 && keyword_input[0].equals("3")){
+                            ProductListResult result = ProductOperation.getInstance().getProductList(1);
+                            io.showList("customer", "Product", result.getProducts(), result.getCurrentPage(), result.getTotalPages());
+                        } else if(keyword_input.length == 2 && keyword_input[0].equals("3")){
+                            List<Product> filtered_product = ProductOperation.getInstance().getProductListByKeyword(keyword_input[1]);
+                            io.showList("customer", "Product (Filtered)", filtered_product, 1, 1);
+                        } else {
+                            io.printErrorMessage("Product View", "Invalid product input format!");
+                        }
                         break;
                     case "4":
-                        // Show order history
+                        int orderPage = 1;
+                        while(true){
+                            OrderListResult orders = OrderOperation.getInstance().getOrderList(customer.getUserId(), orderPage);
+                            //Check if the order is empty
+                            if(orders.getOrders().isEmpty()){
+                                io.printMessage("No order history before, please buy something to fill in the cart!");
+                                break;
+                            }
+                            io.showList("customer", "Order", orders.getOrders(), orders.getCurrentPage(), orders.getTotalPages());
+                            io.printMessage("Enter 'n' (next), 'p' (previous), 'b' (back)\n");
+                            String navigation = io.getUserInput("", 1)[0];
+                            if(navigation.equalsIgnoreCase("n") && orderPage < orders.getTotalPages()){
+                                orderPage++;
+                            } else if (navigation.equalsIgnoreCase("p") && orderPage > 1){
+                                orderPage--;
+                            } else if(navigation.equalsIgnoreCase("b")) {
+                                break;
+                            } else {
+                                io.printErrorMessage("Order Navigation", "Invalid input!");
+                            }
+                        }
                         break;
                     case "5":
                         // Generate consumption figures

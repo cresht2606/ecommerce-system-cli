@@ -389,7 +389,7 @@ public class ProductOperation{
     * Removes all product data in the data/products.txt file.
     */
     public void deleteAllProducts() {
-        File productFile = new File("ecommerce-system-cli/database/products.txt");
+        File productFile = new File("database\\products.txt");
         try(BufferedWriter writer = new BufferedWriter(new FileWriter(productFile))){
             //Clear the file
         } catch(IOException e){

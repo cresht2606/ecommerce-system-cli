@@ -225,7 +225,7 @@ public class OrderOperation{
     * Removes all data in the data/orders.txt file.
     */
     public void deleteAllOrders() {
-        File orderFile = new File("ecommerce-system-cli/database/orders.txt");
+        File orderFile = new File("database\\orders.txt");
         try(BufferedWriter writer = new BufferedWriter(new FileWriter(orderFile))){
             //Clear the file
         } catch(IOException e){

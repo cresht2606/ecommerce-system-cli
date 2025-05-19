@@ -106,7 +106,7 @@ public class UserOperation {
             encryptedPassword = encryptedPassword.substring(2, encryptedPassword.length() - 2);
         }
         else{
-            throw new IllegalArgumentException("Invalid encrypted password, expect to go through encryption before decryption!");
+            throw new IllegalArgumentException("Invalid encrypted password, expected to go through encryption before decryption!");
         }
 
         StringBuilder originalPassword = new StringBuilder();

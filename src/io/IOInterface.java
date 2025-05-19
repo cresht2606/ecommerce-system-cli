@@ -26,25 +26,26 @@ public class IOInterface {
     * @return An array of strings containing the arguments
     */
     public String[] getUserInput(String message, int numOfArgs) {
-        // Display instruction or context
-        System.out.println(message);
+        // Print the custom message only if not blank
+        if (message != null && !message.isBlank()) {
+            System.out.println(message);
+        }
 
-        // Only print "Enter your choice" for single-argument prompts like menus
-        if (numOfArgs == 1) {
+        // Only prompt with "Enter your choice:" if no custom message was provided
+        if (message == null || message.isBlank()) {
             System.out.print("Enter your choice: ");
         }
 
-        // Read and parse input
         String input = scanner.nextLine().trim();
         String[] parts = input.split("\\s+");
 
-        // Validate input length
         if (parts.length != numOfArgs) {
             throw new IllegalArgumentException("Invalid input. Expected " + numOfArgs + " arguments.");
         }
 
         return parts;
     }
+
 
 
     /**
@@ -72,7 +73,7 @@ public class IOInterface {
     */
 
     public void adminMenu() {
-        System.out.println("======= Admin Menu =======");
+        System.out.println("\n======= Admin Menu =======");
         System.out.println("(1) Show products");
         System.out.println("(2) Add customers");
         System.out.println("(3) Show customers");
@@ -95,7 +96,7 @@ public class IOInterface {
     */
 
     public void customerMenu() {
-        System.out.println("======= Customer Menu =======");
+        System.out.println("\n======= Customer Menu =======");
         System.out.println("(1) Show profile");
         System.out.println("(2) Update profile");
         System.out.println("(3) Show products");
