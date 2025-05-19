@@ -134,7 +134,7 @@ public class CustomerOperation {
         + "\"user_mobile\":\"" + customer.getUserMobile() + "\""
         + "}";
 
-        try(BufferedWriter writer = new BufferedWriter(new FileWriter("ecommerce-system-cli/database/users.txt", true))){
+        try(BufferedWriter writer = new BufferedWriter(new FileWriter("database\\users.txt", true))){
             writer.write(userData);
             writer.newLine();
         }catch(IOException e){
@@ -252,7 +252,7 @@ public class CustomerOperation {
         List<String> allCustomerLines = new ArrayList<>();
 
         //Read the users.txt by storing it as filepath
-        File inputFile = new File("ecommerce-system-cli/database/users.txt");
+        File inputFile = new File("database\\users.txt");
 
 
         try(BufferedReader reader = new BufferedReader(new FileReader(inputFile))){

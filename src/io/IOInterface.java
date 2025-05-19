@@ -25,24 +25,27 @@ public class IOInterface {
     * @param numOfArgs The number of arguments expected
     * @return An array of strings containing the arguments
     */
-
     public String[] getUserInput(String message, int numOfArgs) {
-        
-        //Display a message (e.g: instructions, table)
+        // Display instruction or context
         System.out.println(message);
 
-        System.out.println("Enter your choice: ");
+        // Only print "Enter your choice" for single-argument prompts like menus
+        if (numOfArgs == 1) {
+            System.out.print("Enter your choice: ");
+        }
 
-        // Read input line, trim spaces, and split by whitespace
+        // Read and parse input
         String input = scanner.nextLine().trim();
         String[] parts = input.split("\\s+");
 
-        //Check if the correct argument was made within the number list
-        if(parts.length != numOfArgs){
-            throw new IllegalArgumentException("Invalid input. Expected \" + numOfArgs + \" arguments.");
+        // Validate input length
+        if (parts.length != numOfArgs) {
+            throw new IllegalArgumentException("Invalid input. Expected " + numOfArgs + " arguments.");
         }
+
         return parts;
     }
+
 
     /**
     * Display the login menu with options: (1) Login, (2) Register, (3) Quit.

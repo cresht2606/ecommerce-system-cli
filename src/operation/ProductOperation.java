@@ -102,18 +102,29 @@ public class ProductOperation{
 
     //Helper extract of order_id, user_id, pro_id, order_time
     public String extractValue(String dataline, String key) {
-        String searchKey = "\"" + key + "\":\"";
+        String searchKey = "\"" + key + "\":";
         int start = dataline.indexOf(searchKey);
-        if (start == -1) {
-            return null;
-        }
+        if (start == -1) return null;
+
         start += searchKey.length();
-        int end = dataline.indexOf("\"", start);
-        if (end == -1) {
-            return null;
+        char firstChar = dataline.charAt(start);
+
+        // Handle quoted string value
+        if (firstChar == '"') {
+            start++;
+            int end = dataline.indexOf('"', start);
+            if (end == -1) return null;
+            return dataline.substring(start, end);
+        } else {
+            // Handle unquoted numeric value
+            int end = start;
+            while (end < dataline.length() && (Character.isDigit(dataline.charAt(end)) || dataline.charAt(end) == '.')) {
+                end++;
+            }
+            return dataline.substring(start, end);
+        }
     }
-    return dataline.substring(start, end);
-}
+
 
     /**
     * Retrieves one page of products from the database.
@@ -124,7 +135,7 @@ public class ProductOperation{
 
     public ProductListResult getProductList(int pageNumber) {
         List<Product> allProductList = new ArrayList<>();
-        File inputFile = new File("ecommerce-system-cli/database/products.txt");
+        File inputFile = new File("database\\products.txt");
 
         try (BufferedReader reader = new BufferedReader(new FileReader(inputFile))) {
             String line;

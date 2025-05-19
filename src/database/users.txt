@@ -1,0 +1,4 @@
+{"user_id":"u_0000000001","user_name":"admin","user_password":"^^qwXzRtYuI7PaSd$$","user_register_time":"01-01-2024_09:00:00","user_role":"admin"}
+{"user_id":"u_0000000002","user_name":"john_doe","user_password":"^^aB3cD4eF5gH6i$$","user_register_time":"15-01-2024_14:30:45","user_role":"customer","user_email":"john.doe@example.com","user_mobile":"0412345678"}
+{"user_id":"u_0000000003","user_name":"jane_smith","user_password":"^^pQ7rS8tU9vW0x$$","user_register_time":"22-01-2024_10:15:22","user_role":"customer","user_email":"jane.smith@example.com","user_mobile":"0423456789"}
+{"user_id":"u_7648052520","user_name":"cresht","user_password":"cresht1739","user_register_time":"19-05-2025_16:47:32","user_role":"customer","user_email":"cresht1739@gmail.com","user_mobile":"0353156077"}

@@ -1,0 +1,2 @@
+{"pro_id":"p001","pro_model":"iPhoneX","pro_category":"Smartphone","pro_name":"iPhone X 64GB","pro_current_price":699.99,"pro_raw_price":999.99,"pro_discount":30.0,"pro_likes_count":245}
+{"pro_id":"p002","pro_model":"GalaxyS21","pro_category":"Smartphone","pro_name":"Samsung Galaxy S21 128GB","pro_current_price":749.99,"pro_raw_price":899.99,"pro_discount":16.67,"pro_likes_count":198}

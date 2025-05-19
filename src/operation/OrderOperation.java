@@ -149,7 +149,7 @@ public class OrderOperation{
     */
     public OrderListResult getOrderList(String customerId, int pageNumber) {
         List<Order> allOrders = new ArrayList<>();
-        File inputFile = new File("ecommerce-system-cli/database/orders.txt");
+        File inputFile = new File("database\\orders.txt");
 
         try (BufferedReader reader = new BufferedReader(new FileReader(inputFile))) {
             String line;

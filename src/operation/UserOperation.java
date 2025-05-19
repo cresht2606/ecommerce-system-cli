@@ -124,15 +124,17 @@ public class UserOperation {
     */
 
     public boolean checkUsernameExist(String userName) {
-        try (BufferedReader reader = new BufferedReader(new FileReader("ecommerce-system-cli/database/users.txt"))) {
+        try (BufferedReader reader = new BufferedReader(new FileReader("database\\users.txt"))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 // Split the line to get the user details
                 String[] userDetails = line.replaceAll("[{}\"]", "").split(",");
                 Map<String, String> userMap = new HashMap<>();
                 for (String detail : userDetails) {
-                    String[] keyValue = detail.split(":");
-                    userMap.put(keyValue[0].trim(), keyValue[1].trim());
+                    String[] keyValue = detail.split(":", 2);
+                    if (keyValue.length == 2) {
+                        userMap.put(keyValue[0].trim(), keyValue[1].trim());
+                    }
                 }
 
                 // Check if the username matches any existing user
@@ -201,13 +203,12 @@ public class UserOperation {
     */
 
     public User login(String userName, String userPassword) {
-        try (BufferedReader reader = new BufferedReader(new FileReader("ecommerce-system-cli/database/users.txt"))) {
+        try (BufferedReader reader = new BufferedReader(new FileReader("database\\users.txt"))) {
             String line;
-            String encryptedInputPassword = encryptPassword(userPassword);
-
             while ((line = reader.readLine()) != null) {
                 String[] userDetails = line.replaceAll("[{}\"]", "").split(",");
                 Map<String, String> userMap = new HashMap<>();
+
                 for (String detail : userDetails) {
                     String[] keyValue = detail.split(":");
                     if (keyValue.length == 2) {
@@ -215,29 +216,34 @@ public class UserOperation {
                     }
                 }
 
-                if (userMap.get("user_name").equals(userName) &&
-                    userMap.get("user_password").equals(encryptedInputPassword)) {
+                if (userMap.containsKey("user_name") && userMap.containsKey("user_password")) {
+                    String encryptedStoredPassword = userMap.get("user_password");
+                    String decryptedStoredPassword = decryptPassword(encryptedStoredPassword);
 
-                    String role = userMap.get("user_role");
+                    if (userMap.get("user_name").equals(userName) &&
+                        decryptedStoredPassword.equals(userPassword)) {
 
-                    if ("customer".equals(role)) {
-                        return new Customer(
-                            userMap.get("user_id"),
-                            userMap.get("user_name"),
-                            userMap.get("user_password"),
-                            userMap.get("user_register_time"),
-                            "customer",
-                            userMap.get("user_email"),
-                            userMap.get("user_mobile")
-                        );
-                    } else if ("admin".equals(role)) {
-                        return new Admin(
-                            userMap.get("user_id"),
-                            userMap.get("user_name"),
-                            userMap.get("user_password"),
-                            userMap.get("user_register_time"),
-                            "admin"
-                        );
+                        String role = userMap.get("user_role");
+
+                        if ("customer".equals(role)) {
+                            return new Customer(
+                                userMap.get("user_id"),
+                                userMap.get("user_name"),
+                                encryptedStoredPassword, // keep encrypted in memory
+                                userMap.get("user_register_time"),
+                                "customer",
+                                userMap.get("user_email"),
+                                userMap.get("user_mobile")
+                            );
+                        } else if ("admin".equals(role)) {
+                            return new Admin(
+                                userMap.get("user_id"),
+                                userMap.get("user_name"),
+                                encryptedStoredPassword,
+                                userMap.get("user_register_time"),
+                                "admin"
+                            );
+                        }
                     }
                 }
             }
@@ -247,5 +253,6 @@ public class UserOperation {
 
         return null;
     }
+
 
 }
